@@ -1,43 +1,35 @@
 package Positive;
 
 import MyBase.MyBase;
+import image.Response;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import java.io.File;
-
+import static Endpoins.Endpoints.DELETE;
+import static Endpoins.Endpoints.IMAGE;
 import static io.restassured.RestAssured.given;
-import static org.hamcrest.Matchers.is;
 
 public class DeleteTest extends MyBase {
-    String uploadedContent;
+    private String uploadedContent;
 
     @BeforeEach
     void deleteUp() {
-        uploadedContent = given()
-                .headers("Authorization", token)
-                .multiPart("image", new File("src/test/resources/images.jpg"))
-                .expect()
-                .body("success", is(true))
-                .statusCode(200)
-                .when()
-                .post("https://api.imgur.com/3/image")
+        uploadedContent = given(headerImage)
+                .post(IMAGE)
                 .then()
                 .extract()
-                .jsonPath()
-                .getString("data.deletehash");
+                .response()
+                .as(Response.class)
+                .getData()
+                .getDeletehash();
+
     }
 
     @DisplayName("Проверка удаления картинки")
     @Test
     void delete() {
-        given()
-                .headers("Authorization", token)
-                .when()
-                .delete("https://api.imgur.com/3/image/{deleteHash}", uploadedContent)
-                .prettyPeek()
-                .then()
-                .statusCode(200);
+        given(header, checkResponse)
+                .delete(DELETE, uploadedContent);
     }
 }
