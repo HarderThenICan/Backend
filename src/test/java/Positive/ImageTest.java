@@ -1,62 +1,59 @@
 package Positive;
 
+
+import MyBase.MyBase;
+import io.restassured.builder.MultiPartSpecBuilder;
+import io.restassured.builder.RequestSpecBuilder;
+import io.restassured.specification.MultiPartSpecification;
+import io.restassured.specification.RequestSpecification;
 import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import MyBase.MyBase;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.Base64;
 
+import static Endpoins.Endpoints.IMAGE;
 import static io.restassured.RestAssured.given;
-import static org.hamcrest.Matchers.is;
+import static org.jcp.xml.dsig.internal.dom.DOMKeyInfo.getContent;
 
 public class ImageTest extends MyBase {
-    protected static byte[] image;
-    protected static String encodedFile;
+    private static byte[] image;
+    private static String encodedFile;
+    private static RequestSpecification headerImageBase64;
+    private static MultiPartSpecification headerImageEncoding;
 
     @BeforeEach
     void imageUp() {
         image = getContent();
         encodedFile = Base64.getEncoder().encodeToString(image);
+
+        headerImageEncoding = new MultiPartSpecBuilder(encodedFile)
+                .controlName("image")
+                .build();
+        headerImageBase64 = new RequestSpecBuilder()
+                .addHeader("Authorization", clienID)
+                .addMultiPart(headerImageEncoding)
+                .build();
+
     }
 
     @DisplayName("Проверка загрузки картики Base64")
     @Test
     void getContentInfoBase64Test() {
-        uploadedContent = given()
-                .headers("Authorization", token)
-                .multiPart("image", encodedFile)
-                .expect()
-                .body("success", is(true))
-                .statusCode(200)
-                .when()
-                .post("https://api.imgur.com/3/image")
-                .then()
-                .extract()
-                .jsonPath()
-                .getString("data.deletehash");
+        given(headerImageBase64, checkResponse)
+                .post(IMAGE);
+
     }
 
     @DisplayName("Проверка загрузки картики из директории ресурс")
     @Test
     void getContentInfo() {
-        uploadedContent = given()
-                .headers("Authorization", token)
-                .multiPart("image", new File("src/test/resources/images.jpeg"))
-                .expect()
-                .body("success", is(true))
-                .log()
-                .all()
-                .statusCode(200)
-                .when()
-                .post("https://api.imgur.com/3/image")
-                .then()
-                .extract()
-                .jsonPath()
-                .getString("data.deletehash");
+        given(headerImage, checkResponse)
+                .post(IMAGE);
+
 
     }
 

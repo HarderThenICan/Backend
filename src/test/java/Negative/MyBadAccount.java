@@ -1,4 +1,5 @@
 package Negative;
+
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import MyBase.MyBase;
@@ -9,14 +10,14 @@ import static org.hamcrest.Matchers.is;
 
 public class MyBadAccount extends MyBase {
 
+
+
+
     @DisplayName("Проверка пользователя не корректного ")
     @Test
     void getIncorrectUser() {
         given()
-                .log()
-                .all()
-                .when()
-                .get("https://api.imgur.com/3/account/odintsovv")
+                .get("/account/odintsovv")
                 .prettyPeek()
                 .then()
                 .body("data.error", is("Authentication required"))
@@ -27,10 +28,8 @@ public class MyBadAccount extends MyBase {
     @DisplayName("Проверка авторизации пользователя")
     @Test
     void getAccountInfo() {
-        given()
-                .headers("Authorization", clienID)
-                .when()
-                .get("https://api.imgur.com/3/account/")
+        given(header)
+                .get("/account/")
                 .then()
                 .statusCode(400);
     }
