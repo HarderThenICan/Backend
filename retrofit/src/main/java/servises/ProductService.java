@@ -18,9 +18,9 @@ public interface ProductService {
     Call<Product> createProduct(@Body Product product);
 
     @PUT("products")
-    Call<Product> chanceProduct(@Body Product product);
+    Call<Product> updateProduct(@Body Product product);
 
     @DELETE("products/{id}")
-    Call<Product> deleteProduct(@Path("id") Integer id);
+    Call <Product> deleteProduct(@Path("id") Integer id);
 
 }
